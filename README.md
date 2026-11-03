@@ -127,6 +127,7 @@ pnpm add dsh-session-delete
 
 - **删不掉已经上传出去的内容**。`dsh-session-log-deepseek` 默认开启，每次官方模型请求都会把会话日志增量作为 `dsh_session_log` 字段发给 DeepSeek（单次上限 8 MiB）。开关在 设置 → 通用 →「在使用官方模型 API 时上传 Session Log」。本地删除不能撤回服务端已经收到的请求体。
 - 活会话的日志被删后，进程内的 session 仍在；再追加事件会重建一个没有文件头的残档——所以插件在删前 `flush`，并拒绝删除正在运行的会话。
+- **删"当前正开着"的会话时，那一行靠归档来收尾。** 一个 live Session 的 `AgentHandle` 只归它的创建者所有，第三方插件无法 teardown；宿主侧的会话列表会一直带着它。所以插件在数据删完后调用 `archiveSession`，借 DSH 默认的"隐藏归档"让那一行当场消失。这个归档标记是临时的：下次插件挂载时，凡是"已归档但既不在内存也不在磁盘"的 id 会被自动 `unarchive`，不会在 `workspace.json` 里留下指向空气的墓碑。
 - 覆盖擦除对 SSD 磨损均衡、NTFS 日志、CoW 文件系统只能尽力而为。
 - 只处理"会话自身的数据"；不追踪、不删除工作区里由 shell 命令产生的文件。
 

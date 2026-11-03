@@ -225,6 +225,22 @@ if (junctionSupported) {
   assert.equal(existsSync(join(outsideDir, 'keep.txt')), true, '更不能顺着它删')
 }
 
+/* ---------- 只在内存里、磁盘上还没落盘的活会话，也必须能删 ---------- */
+const ghostId = 'session-ghost0000-0000-0000-000000000000'
+const liveCtx = {
+  ...ctx,
+  sessions: {
+    get: (id) => (id === ghostId ? { id } : undefined),
+    flush: async () => {}
+  }
+}
+const ghostScan = await scan(liveCtx, ghostId, false)
+assert.equal(ghostScan.exists, true, '活会话即使还没落盘也算存在')
+assert.equal(ghostScan.live, true)
+const ghostDelete = await perform(liveCtx, ghostId, 'records', 'normal')
+assert.equal(ghostDelete.ok, true, '这种会话必须能删，否则侧栏会留一行删不掉的东西')
+assert.equal(ghostDelete.removed.files, 0, '本来就没文件')
+
 console.log('self-test ok:', {
   groups: level1.groups.map((item) => `${item.key}=${item.count}`).join(' '),
   removedFiles: result.removed.files,

@@ -280,9 +280,31 @@ exports.__debug.finish({ sessionId: 'session-abc', result: { live: false } })
 assert.equal(reloads, 0, '非活会话不该重载页面')
 assert.equal(exports.__debug.store.request, null, '关掉对话框')
 
-/* 摘不掉时回退整页刷新 */
+/*
+ * 活会话：这个 Electron 窗口里 location.reload() 会被静默吞掉，所以不能再依赖它。
+ * 正确行为是「切走 + 摘行 + 延迟重试」，且不调 reload。
+ */
+let leftTo = null
+ctx.get = (name) => {
+  if (name === 'sessions') return { list: sessionStore }
+  if (name === 'uiWorkspace') {
+    return {
+      openSession(target) {
+        leftTo = target
+      }
+    }
+  }
+  return undefined
+}
+sessionStore.state = {
+  ids: ['session-xxx', 'session-abc'],
+  byId: { 'session-xxx': { id: 'session-xxx' }, 'session-abc': { id: 'session-abc' } },
+  phase: 'ready'
+}
 exports.__debug.finish({ sessionId: 'session-abc', result: { live: true } })
-assert.equal(reloads, 1, '活会话必须重载')
+assert.equal(reloads, 0, '刷新被禁用，不能再依赖它')
+assert.equal(leftTo, 'session-xxx', '必须把主视图切到别的会话，宿主才会下庄')
+assert.equal(sessionStore.state.byId['session-abc'], undefined, '活会话也要当场摘行')
 
 console.log('client-test ok:', {
   text: firstText.slice(0, 90).replace(/\s+/g, ' ')

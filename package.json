@@ -1,6 +1,6 @@
 {
   "name": "dsh-session-delete",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "真正删除 DSH 会话：会话日志全部格式代、投影缓存、工作区索引、插件按会话存的数据、孤儿附件，可选覆盖擦除。",
   "type": "module",
   "main": "lib/index.js",
