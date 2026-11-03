@@ -193,7 +193,11 @@ if (junctionSupported) {
   const withJunction = await perform(ctx, ID, 'records', 'normal')
   assert.equal(withJunction.ok, true)
   assert.equal(existsSync(join(outsideDir, 'keep.txt')), true, '联接目标里的文件绝不能被删')
-  console.log('（已测：会话目录里的联接没有被顺着删出去）')
+  assert.ok(
+    withJunction.removed.blocked.some((item) => item.code === 'SYMLINK'),
+    '目录联接要被拦下并记账'
+  )
+  console.log('（已测：会话目录里的联接没有被顺着删出去，且被拦下记账）')
 } else {
   console.log('（跳过联接用例：当前环境无权限创建联接）')
 }
