@@ -1,0 +1,63 @@
+{
+  "name": "dsh-session-delete",
+  "version": "0.1.0",
+  "description": "真正删除 DSH 会话：会话日志全部格式代、投影缓存、工作区索引、插件按会话存的数据、孤儿附件，可选覆盖擦除。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "icon.svg",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-workspace",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.0 <5"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "dsh-plugin",
+    "cordis",
+    "session",
+    "delete",
+    "privacy",
+    "self-hosted"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wangyueyueye/dsh-session-delete.git"
+  },
+  "homepage": "https://github.com/wangyueyueye/dsh-session-delete#readme",
+  "bugs": {
+    "url": "https://github.com/wangyueyueye/dsh-session-delete/issues"
+  },
+  "author": "wangyueyueye",
+  "license": "MIT"
+}

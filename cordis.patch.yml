@@ -1,0 +1,4 @@
+# dsh-session-delete 的 Host 行。插入到 profile 组合的末尾。
+- insert:
+    - id: session-delete
+      name: dsh-session-delete
