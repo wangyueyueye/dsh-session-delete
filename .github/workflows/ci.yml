@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [20, 22, 24]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # 零依赖：不跑 npm install，直接跑两个自测。
+      - name: Host self-test (scan/delete on a temp DSH_HOME fixture)
+        run: node test/selftest.mjs
+      - name: Client self-test (slot registration, gating, store removal)
+        run: node test/client-test.mjs
