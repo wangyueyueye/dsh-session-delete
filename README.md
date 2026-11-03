@@ -90,6 +90,9 @@ Local deletion cannot recall content already sent to a model provider. See [Know
 
 ## 安装
 
+> ⚠️ **npm 上的 `dsh-session-delete` 是另一位作者的另一个插件，与本项目无关。**
+> 本项目（更彻底的那份：投影缓存、工作区索引、插件数据、孤儿附件、覆盖擦除）请只从本仓库安装。
+
 任选一种。装完**重开 DSH**（客户端 boot 图谱在启动时组装）。
 
 **A. 从本地目录安装（推荐，便于审计）**
