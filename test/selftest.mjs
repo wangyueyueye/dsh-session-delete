@@ -5,7 +5,7 @@
  *   node test/selftest.mjs
  */
 
-import { mkdtemp, mkdir, writeFile, readFile, symlink } from 'node:fs/promises'
+import { mkdtemp, mkdir, writeFile, readFile, symlink, realpath } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -138,12 +138,25 @@ assert.equal(existsSync(shredTarget), false)
 assert.equal(shredded.removed.bytes > 0, true, '要统计释放的字节数')
 
 /* ---------- 硬化：路径闸门 ---------- */
-const { within } = __internals
+const { within, allowedRoots } = __internals
 const SESSIONS = join(HOME, 'sessions')
 assert.equal(within(SESSIONS, join(SESSIONS, '--D-ws--', ID, 'session.v4.jsonl.zstd')), true, '根内文件应放行')
 assert.equal(within(SESSIONS, join(SESSIONS, '..', 'storages', 'x.json')), false, '父目录穿越必须拦住')
 assert.equal(within(SESSIONS, 'C:\\Windows\\System32\\drivers\\etc\\hosts'), false, '系统路径必须拦住')
 assert.equal(within(SESSIONS, SESSIONS), true, '根本身放行')
+
+/*
+ * 回归：Windows 上 realpath 会把 8.3 短名（RUNNER~1）展开成长名，
+ * 只拿字面根去比 realpath 结果会把合法文件判成"在根外"而静默漏删。
+ * 所以根目录必须以两种形式各出现一次。
+ */
+const rootsForTest = await allowedRoots(ctx)
+const realSessions = await realpath(SESSIONS)
+assert.ok(
+  rootsForTest.some((root) => root.toLowerCase() === realSessions.toLowerCase()),
+  '允许根必须包含 realpath 形式'
+)
+assert.ok(rootsForTest.includes(SESSIONS), '允许根也必须保留字面形式')
 
 /* ---------- 硬化：符号链接不跟进 ---------- */
 const outside = join(HOME, 'outside-precious.txt')
